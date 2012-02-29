@@ -142,7 +142,7 @@ if($topic_id){
 }else if($forum_id){
 	$sql_array['WHERE'] = "t.forum_id = $forum_id";
 }else{
-	$sql_array['WHERE'] = "1 = 1";
+	$sql_array['WHERE'] = "1 = 1 ";
 }
 
 $sql_array['WHERE'] .= ' AND (f.forum_id = t.forum_id)';
@@ -467,7 +467,7 @@ $sql = 'SELECT p.post_id
 	}else if($aceforum_id){
   		$sql .= " WHERE p.forum_id = $aceforum_id";
 	}else{
-	  	$sql.= " WHERE 1 = 1";
+	  	$sql.= " WHERE 1 = 1 ";
 	}
 	if($ace_min_id){
 	  $sql.=" and p.post_id>$ace_min_id ";
@@ -883,16 +883,22 @@ $template->assign_vars(array(
 $first_unread = $post_unread = false;
 for ($i = 0, $end = sizeof($post_list); $i < $end; ++$i)
 {
+
+
 	// A non-existing rowset only happens if there was no user present for the entered poster_id
 	// This could be a broken posts table.
 	if (!isset($rowset[$post_list[$i]]))
 	{
-		print $i.".".$post_list[$i]." ";
 		continue;
 	}
 
 	$row =& $rowset[$post_list[$i]];
 	$poster_id = $row['user_id'];
+
+	// If you ain't authed to read the forum, you can't cheat and see it with ACE
+	if(!$auth->acl_get('f_read', $row['forum_id'])){
+		continue;
+	}
 
 	// End signature parsing, only if needed
 	if ($user_cache[$poster_id]['sig'] && $row['enable_sig'] && empty($user_cache[$poster_id]['sig_parsed']))
@@ -1154,57 +1160,6 @@ for ($i = 0, $end = sizeof($post_list); $i < $end; ++$i)
 }
 unset($rowset, $user_cache);
 
-// Update topic view and if necessary attachment view counters ... but only for humans and if this is the first 'page view'
-if (isset($user->data['session_page']) && !$user->data['is_bot'] && (strpos($user->data['session_page'], '&t=' . $topic_id) === false || isset($user->data['session_created'])))
-{
-	$sql = 'UPDATE ' . TOPICS_TABLE . '
-		SET topic_views = topic_views + 1, topic_last_view_time = ' . time() . "
-		WHERE topic_id = $topic_id";
-	$db->sql_query($sql);
-
-	// Update the attachment download counts
-	if (sizeof($update_count))
-	{
-		$sql = 'UPDATE ' . ATTACHMENTS_TABLE . '
-			SET download_count = download_count + 1
-			WHERE ' . $db->sql_in_set('attach_id', array_unique($update_count));
-		$db->sql_query($sql);
-	}
-}
-
-// Get last post time for all global announcements
-// to keep proper forums tracking
-if ($topic_data['topic_type'] == POST_GLOBAL)
-{
-	$sql = 'SELECT topic_last_post_time as forum_last_post_time
-		FROM ' . TOPICS_TABLE . '
-		WHERE forum_id = 0
-		ORDER BY topic_last_post_time DESC';
-	$result = $db->sql_query_limit($sql, 1);
-	$topic_data['forum_last_post_time'] = (int) $db->sql_fetchfield('forum_last_post_time');
-	$db->sql_freeresult($result);
-
-	$sql = 'SELECT mark_time as forum_mark_time
-		FROM ' . FORUMS_TRACK_TABLE . '
-		WHERE forum_id = 0
-			AND user_id = ' . $user->data['user_id'];
-	$result = $db->sql_query($sql);
-	$topic_data['forum_mark_time'] = (int) $db->sql_fetchfield('forum_mark_time');
-	$db->sql_freeresult($result);
-}
-
-// Only mark topic if it's currently unread. Also make sure we do not set topic tracking back if earlier pages are viewed.
-if (isset($topic_tracking_info[$topic_id]) && $topic_data['topic_last_post_time'] > $topic_tracking_info[$topic_id] && $max_post_time > $topic_tracking_info[$topic_id])
-{
-	markread('topic', (($topic_data['topic_type'] == POST_GLOBAL) ? 0 : $forum_id), $topic_id, $max_post_time);
-
-	// Update forum info
-	$all_marked_read = update_forum_tracking_info((($topic_data['topic_type'] == POST_GLOBAL) ? 0 : $forum_id), $topic_data['forum_last_post_time'], (isset($topic_data['forum_mark_time'])) ? $topic_data['forum_mark_time'] : false, false);
-}
-else
-{
-	$all_marked_read = true;
-}
 
 // If there are absolutely no more unread posts in this forum and unread posts shown, we can savely show the #unread link
 if ($all_marked_read)

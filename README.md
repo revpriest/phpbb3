@@ -38,6 +38,15 @@ from /ace.php with either a "t" or an "f" CGI parameter
 to specify what to listen to. The templates have not
 been adjusted to link to that page as yet.
 
+The events calendar hasn't even been started yet
+(well, it exists in the old phpbb2 board but likely
+I'll rewrite rather than use that code).
+
+The post-voting hasn't even been started yet
+(also exists in the old board, will likely
+not reuse the code and just rewrite better
+though)
+
 ## ABOUT
 
 phpBB is a free bulletin board written in PHP.
