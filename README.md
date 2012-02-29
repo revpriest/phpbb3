@@ -33,8 +33,10 @@ so I'll need all the same changes here that we had there:
 
 ## PROGRESS
 
-None so far. The "Ace" stuff is written but not
-yet in this archive.
+The IRC-View, "ACE", is mosty complete and available
+from /ace.php with either a "t" or an "f" CGI parameter
+to specify what to listen to. The templates have not
+been adjusted to link to that page as yet.
 
 ## ABOUT
 
