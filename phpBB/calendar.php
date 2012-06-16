@@ -25,6 +25,8 @@ include($phpbb_root_path . 'common.' . $phpEx);
 include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
 include($phpbb_root_path . 'includes/bbcode.' . $phpEx);
 
+include($phpbb_root_path.'eventDates.'.$phpEx);
+
 // Start session management
 $user->session_begin();
 $auth->acl($user->data);
@@ -54,7 +56,9 @@ function getTopicsForThisDay($t,$mode){
     $sql = 'SELECT topic_id,topic_title FROM ' . TOPICS_TABLE . " WHERE $where";
   }else{
     //Default to showing event-dates on that day.
-    $sql = 'SELECT topic_id,topic_title FROM ' . TOPICS_TABLE . " WHERE false";
+    $tdate = date("Y-m-d",$t);
+    $tdate1 = date("Y-m-d",$t1);
+    $sql = 'SELECT topic_id,topic_title FROM '. EVENTDATES_TABLE. ' inner join ' . TOPICS_TABLE . " WHERE thread=topic_id and date>='$tdate' and date<'$tdate1'";
   }
 
   $result = $db->sql_query($sql);

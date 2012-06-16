@@ -2,8 +2,9 @@
 /**
 *
 * @package phpBB3
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
-* @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 
@@ -18,6 +19,8 @@ include($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
 include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
 include($phpbb_root_path . 'includes/message_parser.' . $phpEx);
 
+//Boing - include stuff for adding event-dates to topics
+include($phpbb_root_path.'eventDates.'.$phpEx);
 
 // Start session management
 $user->session_begin();
@@ -86,8 +89,9 @@ switch ($mode)
 		$sql = 'SELECT f.*, t.*
 			FROM ' . TOPICS_TABLE . ' t, ' . FORUMS_TABLE . " f
 			WHERE t.topic_id = $topic_id
-				AND f.forum_id = t.forum_id" .
-			(($auth->acl_get('m_approve', $forum_id)) ? '' : ' AND t.topic_approved = 1');
+				AND (f.forum_id = t.forum_id
+					OR f.forum_id = $forum_id)" .
+			(($auth->acl_get('m_approve', $forum_id)) ? '' : 'AND t.topic_approved = 1');
 	break;
 
 	case 'quote':
@@ -114,8 +118,9 @@ switch ($mode)
 			WHERE p.post_id = $post_id
 				AND t.topic_id = p.topic_id
 				AND u.user_id = p.poster_id
-				AND f.forum_id = t.forum_id" .
-				(($auth->acl_get('m_approve', $forum_id)) ? '' : ' AND p.post_approved = 1');
+				AND (f.forum_id = t.forum_id
+					OR f.forum_id = $forum_id)" .
+				(($auth->acl_get('m_approve', $forum_id)) ? '' : 'AND p.post_approved = 1');
 	break;
 
 	case 'smilies':
@@ -179,7 +184,7 @@ $user->setup(array('posting', 'mcp', 'viewtopic'), $post_data['forum_style']);
 if ($config['enable_post_confirm'] && !$user->data['is_registered'])
 {
 	include($phpbb_root_path . 'includes/captcha/captcha_factory.' . $phpEx);
-	$captcha = phpbb_captcha_factory::get_instance($config['captcha_plugin']);
+	$captcha =& phpbb_captcha_factory::get_instance($config['captcha_plugin']);
 	$captcha->init(CONFIRM_POST);
 }
 
@@ -321,7 +326,7 @@ if ($mode == 'bump')
 		$meta_url = phpbb_bump_topic($forum_id, $topic_id, $post_data, $current_time);
 		meta_refresh(3, $meta_url);
 
-		$message = $user->lang['TOPIC_BUMPED'] . '<br /><br />' . $user->lang('VIEW_MESSAGE', '<a href="' . $meta_url . '">', '</a>');
+		$message = $user->lang['TOPIC_BUMPED'] . '<br /><br />' . sprintf($user->lang['VIEW_MESSAGE'], '<a href="' . $meta_url . '">', '</a>');
 		$message .= '<br /><br />' . sprintf($user->lang['RETURN_FORUM'], '<a href="' . append_sid("{$phpbb_root_path}viewforum.$phpEx", 'f=' . $forum_id) . '">', '</a>');
 
 		trigger_error($message);
@@ -632,7 +637,7 @@ if ($submit || $preview || $refresh)
 	$message_parser->message		= utf8_normalize_nfc(request_var('message', '', true));
 
 	$post_data['username']			= utf8_normalize_nfc(request_var('username', $post_data['username'], true));
-	$post_data['post_edit_reason']	= ($request->variable('edit_reason', false, false, phpbb_request_interface::POST) && $mode == 'edit' && $auth->acl_get('m_edit', $forum_id)) ? utf8_normalize_nfc(request_var('edit_reason', '', true)) : '';
+	$post_data['post_edit_reason']	= (!empty($_POST['edit_reason']) && $mode == 'edit' && $auth->acl_get('m_edit', $forum_id)) ? utf8_normalize_nfc(request_var('edit_reason', '', true)) : '';
 
 	$post_data['orig_topic_type']	= $post_data['topic_type'];
 	$post_data['topic_type']		= request_var('topic_type', (($mode != 'post') ? (int) $post_data['topic_type'] : POST_NORMAL));
@@ -840,7 +845,7 @@ if ($submit || $preview || $refresh)
 		if (($result = validate_string($post_data['username'], false, $config['min_name_chars'], $config['max_name_chars'])) !== false)
 		{
 			$min_max_amount = ($result == 'TOO_SHORT') ? $config['min_name_chars'] : $config['max_name_chars'];
-			$error[] = $user->lang('FIELD_' . $result, $min_max_amount, $user->lang['USERNAME']);
+			$error[] = sprintf($user->lang['FIELD_' . $result], $user->lang['USERNAME'], $min_max_amount);
 		}
 	}
 
@@ -992,6 +997,60 @@ if ($submit || $preview || $refresh)
 	// Store message, sync counters
 	if (!sizeof($error) && $submit)
 	{
+		// Check if we want to de-globalize the topic... and ask for new forum
+		if ($post_data['topic_type'] != POST_GLOBAL)
+		{
+			$sql = 'SELECT topic_type, forum_id
+				FROM ' . TOPICS_TABLE . "
+				WHERE topic_id = $topic_id";
+			$result = $db->sql_query($sql);
+			$row = $db->sql_fetchrow($result);
+			$db->sql_freeresult($result);
+
+			if ($row && !$row['forum_id'] && $row['topic_type'] == POST_GLOBAL)
+			{
+				$to_forum_id = request_var('to_forum_id', 0);
+
+				if ($to_forum_id)
+				{
+					$sql = 'SELECT forum_type
+						FROM ' . FORUMS_TABLE . '
+						WHERE forum_id = ' . $to_forum_id;
+					$result = $db->sql_query($sql);
+					$forum_type = (int) $db->sql_fetchfield('forum_type');
+					$db->sql_freeresult($result);
+
+					if ($forum_type != FORUM_POST || !$auth->acl_get('f_post', $to_forum_id) || (!$auth->acl_get('m_approve', $to_forum_id) && !$auth->acl_get('f_noapprove', $to_forum_id)))
+					{
+						$to_forum_id = 0;
+					}
+				}
+
+				if (!$to_forum_id)
+				{
+					include_once($phpbb_root_path . 'includes/functions_admin.' . $phpEx);
+
+					$template->assign_vars(array(
+						'S_FORUM_SELECT'	=> make_forum_select(false, false, false, true, true, true),
+						'S_UNGLOBALISE'		=> true)
+					);
+
+					$submit = false;
+					$refresh = true;
+				}
+				else
+				{
+					if (!$auth->acl_get('f_post', $to_forum_id))
+					{
+						// This will only be triggered if the user tried to trick the forum.
+						trigger_error('NOT_AUTHORISED');
+					}
+
+					$forum_id = $to_forum_id;
+				}
+			}
+		}
+
 		if ($submit)
 		{
 			// Lock/Unlock Topic
@@ -1076,6 +1135,20 @@ if ($submit || $preview || $refresh)
 			// The last parameter tells submit_post if search indexer has to be run
 			$redirect_url = submit_post($mode, $post_data['post_subject'], $post_data['username'], $post_data['topic_type'], $poll, $data, $update_message, ($update_message || $update_subject) ? true : false);
 
+            //Boing - Attach the event date if there is one.
+            $eventDate = $_REQUEST['eventdate'];
+            if(!empty($eventDate)){
+              if(preg_match("/t\=(\d+)/",$redirect_url,$reg)){
+                $tid = $reg[1];
+                if(preg_match("/(\d\d)\/(\d\d)\/(\d\d\d\d)/",$eventDate,$reg)){
+                  $date = array("year"=>$reg[3],"month"=>$reg[2],"day"=>$reg[1]);
+                }else{
+                  $date = "reset";
+                }
+                eventDates_attachDate($tid,$date);
+              }
+            }
+
 			if ($config['enable_post_confirm'] && !$user->data['is_registered'] && (isset($captcha) && $captcha->is_solved() === true) && ($mode == 'post' || $mode == 'reply' || $mode == 'quote'))
 			{
 				$captcha->reset();
@@ -1154,8 +1227,8 @@ if (!sizeof($error) && $preview)
 			'POLL_QUESTION'		=> $parse_poll->message,
 
 			'L_POLL_LENGTH'		=> ($post_data['poll_length']) ? sprintf($user->lang['POLL_RUN_TILL'], $user->format_date($poll_end)) : '',
-			'L_MAX_VOTES'		=> $user->lang('MAX_OPTIONS_SELECT', (int) $post_data['poll_max_options']),
-		));
+			'L_MAX_VOTES'		=> ($post_data['poll_max_options'] == 1) ? $user->lang['MAX_OPTION_SELECT'] : sprintf($user->lang['MAX_OPTIONS_SELECT'], $post_data['poll_max_options']))
+		);
 
 		$parse_poll->message = implode("\n", $post_data['poll_options']);
 		$parse_poll->format_display($post_data['enable_bbcode'], $post_data['enable_urls'], $post_data['enable_smilies']);
@@ -1353,11 +1426,14 @@ $form_enctype = (@ini_get('file_uploads') == '0' || strtolower(@ini_get('file_up
 add_form_key('posting');
 
 
+//Boing - work out if this topic has a date and assign var if so.
+eventDates_assignVars($topic_id);
+
 // Start assigning vars for main posting page ...
 $template->assign_vars(array(
 	'L_POST_A'					=> $page_title,
 	'L_ICON'					=> ($mode == 'reply' || $mode == 'quote' || ($mode == 'edit' && $post_id != $post_data['topic_first_post_id'])) ? $user->lang['POST_ICON'] : $user->lang['TOPIC_ICON'],
-	'L_MESSAGE_BODY_EXPLAIN'	=> $user->lang('MESSAGE_BODY_EXPLAIN', (int) $config['max_post_chars']),
+	'L_MESSAGE_BODY_EXPLAIN'	=> (intval($config['max_post_chars'])) ? sprintf($user->lang['MESSAGE_BODY_EXPLAIN'], intval($config['max_post_chars'])) : '',
 
 	'FORUM_NAME'			=> $post_data['forum_name'],
 	'FORUM_DESC'			=> ($post_data['forum_desc']) ? generate_text_for_display($post_data['forum_desc'], $post_data['forum_desc_uid'], $post_data['forum_desc_bitfield'], $post_data['forum_desc_options']) : '',
@@ -1430,7 +1506,7 @@ if (($mode == 'post' || ($mode == 'edit' && $post_id == $post_data['topic_first_
 		'S_POLL_DELETE'			=> ($mode == 'edit' && sizeof($post_data['poll_options']) && ((!$post_data['poll_last_vote'] && $post_data['poster_id'] == $user->data['user_id'] && $auth->acl_get('f_delete', $forum_id)) || $auth->acl_get('m_delete', $forum_id))),
 		'S_POLL_DELETE_CHECKED'	=> (!empty($poll_delete)) ? true : false,
 
-		'L_POLL_OPTIONS_EXPLAIN'	=> $user->lang('POLL_OPTIONS_' . (($mode == 'edit') ? 'EDIT_' : '') . 'EXPLAIN', (int) $config['max_poll_options']),
+		'L_POLL_OPTIONS_EXPLAIN'	=> sprintf($user->lang['POLL_OPTIONS_' . (($mode == 'edit') ? 'EDIT_' : '') . 'EXPLAIN'], $config['max_poll_options']),
 
 		'VOTE_CHANGE_CHECKED'	=> (!empty($post_data['poll_vote_change'])) ? ' checked="checked"' : '',
 		'POLL_TITLE'			=> (isset($post_data['poll_title'])) ? $post_data['poll_title'] : '',
@@ -1564,3 +1640,5 @@ function handle_post_delete($forum_id, $topic_id, $post_id, &$post_data)
 
 	trigger_error('USER_CANNOT_DELETE');
 }
+
+?>
