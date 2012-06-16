@@ -59,7 +59,7 @@ function getTopicsForThisDay($t,$mode){
 
   $result = $db->sql_query($sql);
   while($row = $db->sql_fetchrow($result)){
-    $ret .= '<a class="calendarLink"  href="viewtopic.php?t="'.$row['topic_id'].'">'.$row['topic_title']."</a><br/>";
+    $ret .= '<a class="calendarLink"  href="viewtopic.php?t='.$row['topic_id'].'">'.$row['topic_title']."</a><br/>";
   }
   $db->sql_freeresult($result);
   return $ret;
