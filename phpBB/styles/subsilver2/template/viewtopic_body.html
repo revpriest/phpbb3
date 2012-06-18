@@ -126,6 +126,17 @@
 <!-- ENDIF -->
 	</table>
 
+<!-- Boing: Add the rollcall if it's got an event-date  -->
+<!-- IF ROLLCALL -->
+<div class="rollcall" style="border: 2px solid;">
+<h2>Rollcall</h2>
+{ROLLCALL_USERLIST}
+<p>{ROLLCALL_CLICKY}</p>
+</div>
+<!-- ENDIF -->
+<!-- Boing - End -->
+
+
 <!-- BEGIN postrow -->
 	<table class="tablebg" width="100%" cellspacing="1">
 	<!-- IF postrow.S_FIRST_ROW -->

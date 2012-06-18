@@ -4,7 +4,7 @@
 * posting functions need access to this stuff so
 * they can attach dates to events and whatnot.
 */
-
+if ( !defined('IN_PHPBB') ) { die("Hacking attempt"); }
 define('EVENTDATES_TABLE', $table_prefix."event_dates");
 
 #Create the table if it ain't already there....

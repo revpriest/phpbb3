@@ -108,6 +108,17 @@
 	<hr />
 <!-- ENDIF -->
 
+<!-- Boing: Add the rollcall if it's got an event-date  -->
+<!-- IF ROLLCALL -->
+<div class="rollcall" style="border: 2px solid;">
+<h2>Rollcall</h2>
+{ROLLCALL_USERLIST}
+<p>{ROLLCALL_CLICKY}</p>
+</div>
+<!-- ENDIF -->
+<!-- Boing - End -->
+
+
 <!-- BEGIN postrow -->
 	<!-- IF postrow.S_FIRST_UNREAD --><a id="unread"></a><!-- ENDIF -->
 	<div id="p{postrow.POST_ID}" class="post <!-- IF postrow.S_ROW_COUNT is odd -->bg1<!-- ELSE -->bg2<!-- ENDIF --><!-- IF postrow.S_UNREAD_POST --> unreadpost<!-- ENDIF --><!-- IF postrow.S_POST_REPORTED --> reported<!-- ENDIF --><!-- IF postrow.S_ONLINE and not postrow.S_IGNORE_POST --> online<!-- ENDIF -->">
