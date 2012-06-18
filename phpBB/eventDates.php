@@ -34,9 +34,16 @@ function eventDates_attachDate($topic_id,$date){
 * Assign the {EVENTDATE} var if there's a date attached
 * to some given topic_id
 */
-function eventDates_assignVars($topic_id){
+function eventDates_assignVars($topic_id,$isFirst){
   global $template;
   global $db;
+  global $mode;
+
+  //Replies don't get event-dates, edits only if it's first.
+  if(($mode=='reply')||($mode=='edit')&&(!$isFirst)){
+    return;
+  }
+
   $sql = 'SELECT date FROM '.EVENTDATES_TABLE.' where thread='.$topic_id;
   if ( $result = $db->sql_query($sql))  {
     $row = $db->sql_fetchrow($result);

@@ -176,6 +176,7 @@
 	<td class="row2" width="78%"><input class="post" style="width:450px" type="text" name="subject" size="45" maxlength="<!-- IF S_NEW_MESSAGE -->60<!-- ELSE -->64<!-- ENDIF -->" tabindex="2" value="{SUBJECT}" /></td>
 </tr>
 <!-- Boing - Add event-date to the form -->
+<!-- IF EVENTDATE -->
 <tr>
     <script language="Javascript" src="cal/AnchorPosition.js"></script>
     <script language="Javascript" src="cal/PopupWindow.js"></script>
@@ -184,6 +185,7 @@
 	<td class="row1" width="22%"><b class="genmed">Event Date:</b><br /><span class="gensmall">If this thread is about an event, when is the event?&nbsp;</span></td>
 	<td class="row2" width="78%"><input class="post" type="text" name="eventdate" size="12" maxlength="12" tabindex="3" value="{EVENTDATE}" /><script language="javascript">var cal = new CalendarPopup();</script>&nbsp;<a href="#" onclick="cal.select(document.forms[0].eventdate,'anchor1','dd/MM/yyyy'); return false;" name="anchor1" id="anchor1">Select date</a></td>
 </tr>
+<!-- ENDIF -->
 <!-- Boing - End of event date -->
 <tr>
 	<td class="row1" valign="top"><b class="genmed">{L_MESSAGE_BODY}:</b><br /><span class="gensmall">{L_MESSAGE_BODY_EXPLAIN}&nbsp;</span><br /><br />

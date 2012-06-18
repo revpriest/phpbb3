@@ -111,6 +111,7 @@
 	<!-- ENDIF -->
 	<!-- ENDIF -->
 <!-- Boing - Add event-date to the form -->
+<!-- IF EVENTDATE -->
     <script language="Javascript" src="cal/AnchorPosition.js"></script>
     <script language="Javascript" src="cal/PopupWindow.js"></script>
     <script language="Javascript" src="cal/date.js"></script>
@@ -119,6 +120,7 @@
 		<dt><label for="date">Event Date:<br/>(If this is an event)</label></dt>
 		<dd><input type="text" name="eventdate" id="eventdate" size="12" maxlength="12" tabindex="3" value="{EVENTDATE}" class="inputbox autowidth" /><script language="javascript">var cal = new CalendarPopup();</script>&nbsp;<a href="#" onclick="cal.select(document.forms[1].eventdate,'anchor1','dd/MM/yyyy'); return false;" name="anchor1" id="anchor1">Select date</a></dd>
 	</dl>
+<!-- ENDIF -->
 <!-- Boing - End of event date -->
 
 	<!-- INCLUDE posting_buttons.html -->

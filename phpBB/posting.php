@@ -1427,7 +1427,7 @@ add_form_key('posting');
 
 
 //Boing - work out if this topic has a date and assign var if so.
-eventDates_assignVars($topic_id);
+eventDates_assignVars($topic_id,$post_id == $post_data['topic_first_post_id']);
 
 // Start assigning vars for main posting page ...
 $template->assign_vars(array(
