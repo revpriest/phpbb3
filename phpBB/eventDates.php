@@ -30,20 +30,14 @@ function eventDates_attachDate($topic_id,$date){
 }
 
 
-/********************************************************
-* Assign the {EVENTDATE} var if there's a date attached
-* to some given topic_id
+/****************************************
+* Function to fetch the date associated
+* with a given topic. Returns empty string
+* if there ain't one.
 */
-function eventDates_assignVars($topic_id,$isFirst){
-  global $template;
+function getEventDate($topic_id,$returnEmpty=0){
   global $db;
-  global $mode;
-
-  //Replies don't get event-dates, edits only if it's first.
-  if(($mode=='reply')||($mode=='edit')&&(!$isFirst)){
-    return;
-  }
-
+  $date = "";
   $sql = 'SELECT date FROM '.EVENTDATES_TABLE.' where thread='.$topic_id;
   if ( $result = $db->sql_query($sql))  {
     $row = $db->sql_fetchrow($result);
@@ -54,8 +48,34 @@ function eventDates_assignVars($topic_id,$isFirst){
     $date = $datearray[2]."/".$datearray[1]."/".$datearray[0];
   }
   if(empty($date)||($date=="//")){
-    $date = "dd/mm/yyyy";
+    if($returnEmpty){
+      return "";
+    }else{
+      $date = "dd/mm/yyyy";
+    }
   }
+  if($returnEmpty){
+    return " - ".$date;
+  }else{
+    return $date;
+  }
+}
+
+
+/********************************************************
+* Assign the {EVENTDATE} var if there's a date attached
+* to some given topic_id
+*/
+function eventDates_assignVars($topic_id,$isFirst){
+  global $template;
+  global $db;
+  global $mode;
+
+  //Replies don't get event-dates, edits only if it's first.
+  if(($mode=="quote")||($mode=='reply')||($mode=='edit')&&(!$isFirst)){
+    return;
+  }
+  $date = getEventDate($topic_id);
   $template->assign_vars(array('EVENTDATE'=>$date));
 }
 

@@ -732,7 +732,9 @@ function smiley_text($text, $force_option = false)
 {
 	global $config, $user, $phpbb_root_path;
 
-	if ($force_option || !$config['allow_smilies'] || !$user->optionget('viewsmilies'))
+	#Pre/Boing - Allow URL to force no smilies
+	if ($force_option || !$config['allow_smilies'] || !$user->optionget('viewsmilies') || strpos($_SERVER['SERVER_NAME'],"noimage")!==false)
+#	if ($force_option || !$config['allow_smilies'] || !$user->optionget('viewsmilies'))
 	{
 		return preg_replace('#<!\-\- s(.*?) \-\-><img src="\{SMILIES_PATH\}\/.*? \/><!\-\- s\1 \-\->#', '\1', $text);
 	}

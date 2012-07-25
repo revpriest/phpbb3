@@ -224,7 +224,13 @@ class bbcode
 				break;
 
 				case 4:
-					if ($user->optionget('viewimg'))
+					# Pre/Boing viewimg can be over-ridden with domain name
+					$viewimgoptionBoing=$user->optionget('viewimg');
+					if(strpos($_SERVER['SERVER_NAME'],"noimage")!==FALSE){
+					    $viewimgoptionBoing = false;
+					}
+#					if ($user->optionget('viewimg'))
+					if ($viewimgoptionBoing)
 					{
 						$this->bbcode_cache[$bbcode_id] = array(
 							'preg' => array(

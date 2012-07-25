@@ -137,3 +137,4 @@ if (!$config['use_system_cron'])
 {
 	$cron = new phpbb_cron_manager(new phpbb_cron_task_provider($phpbb_extension_manager), $cache->get_driver());
 }
+

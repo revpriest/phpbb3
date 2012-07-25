@@ -1,0 +1,99 @@
+<!-- INCLUDE overall_header.html -->
+<div id="pageheader">
+	<h2>Calendar</h2>
+</div>
+<br clear="all" /><br />
+<div id="pagecontent">
+
+<style>
+a.calendarLink{
+  white-space: nowrap;
+  line-height: 1.4em;
+}
+ul.calendarDays{
+  width: 800px;
+  margin: auto;
+  margin-bottom: 2em;
+}
+li.calendarHead{
+  display: inline-block;
+  width: 100px;
+  border: 1px solid #000;
+  padding: 2px;
+  margin: 2px;
+  background: #aaa;
+}
+li.calendarPad{
+  display: inline-block;
+  width: 100px;
+  border: 1px solid transparent;
+  padding: 2px;
+  margin: 2px;
+}
+li.calendarDay{
+  display: inline-block;
+  width: 100px;
+  border: 1px solid;
+  height: 100px;
+  padding: 2px;
+  margin: 2px;
+  background: #ddd;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+h1.calHead{
+  text-align: center;
+  margin: auto;
+  padding-top: 1em;
+  padding-bottom: 0.5em;
+}
+p.calendarSwitch{
+  text-align: right;
+  margin-right: 0px;
+}
+</style>
+
+<p class="calendarSwitch">
+Showing topics {MODENAME}. Switch to:<br/>
+<a href="calendar.php?mode=0&month={MONTH}&year={YEAR}">events associated with day</a><br/>
+<a href="calendar.php?mode=1&month={MONTH}&year={YEAR}">topics started on day</a><br/>
+<a href="calendar.php?mode=2&month={MONTH}&year={YEAR}">topics ended on day</a><br/>
+<a href="eventChart.php">all time event popularity chart</a><br/>
+</p>
+
+
+<h1 class="calHead">
+<a href="calendar.php?mode={MODE}&month={MONTH}&year={BACKYEAR}">&lt;&lt;</a> &nbsp;&nbsp;&nbsp;
+<a href="calendar.php?mode={MODE}&month={PREVMONTH}&year={PREVYEAR}">&lt;</a> &nbsp;
+
+{MONTHNAME} {YEAR}
+
+&nbsp;<a href="calendar.php?mode={MODE}&month={NEXTMONTH}&year={NEXTYEAR}">&gt;</a> &nbsp;&nbsp;&nbsp;
+<a href="calendar.php?mode={MODE}&month={MONTH}&year={SKIPYEAR}">&gt;&gt;</a>
+</h1>
+
+<ul class="calendarDays">
+  <li class="calendarHead">Sunday</li>
+  <li class="calendarHead">Monday</li>
+  <li class="calendarHead">Tuesday</li>
+  <li class="calendarHead">Wednesday</li>
+  <li class="calendarHead">Thursday</li>
+  <li class="calendarHead">Friday</li>
+  <li class="calendarHead">Saturday</li>
+<!-- BEGIN calpad -->
+  <li class="calendarPad">&nbsp;</li>
+<!-- END calpad -->
+<!-- BEGIN calday -->
+  <li class="calendarDay">
+    <b>{calday.DATE}</b><br/>
+   {calday.EVENTS}
+  </li>
+<!-- END calday -->
+</ul>
+
+
+<hr clear="both" />
+
+</div>
+<div id="pagefooter"></div>
+<!-- INCLUDE overall_footer.html -->

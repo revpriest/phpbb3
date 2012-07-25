@@ -1653,6 +1653,24 @@ class user extends session
 			$style = ($style) ? $style : ((!$config['override_user_style']) ? $this->data['user_style'] : $config['default_style']);
 		}
 
+
+		#Pre/Boing - If there's a domain-name forcing the style, force the style.
+
+		$domain = $_SERVER['SERVER_NAME'];
+		if(substr($domain,0,9)=="noimages."){
+		  $domain = substr($domain,9);
+		}
+		if($domain=="new1.boingboingboing.net"){$style=1;}
+		if($domain=="prosilver.boingboingboing.net"){$style=1;}
+		if($domain=="new2.boingboingboing.net"){$style=2;}
+		if($domain=="play.boingboingboing.net"){$style=2;}
+		if($domain=="new3.boingboingboing.net"){$style=3;}
+		if($domain=="work.boingboingboing.net"){$style=3;}
+		if($domain=="new4.boingboingboing.net"){$style=4;}
+		if($domain=="hello.boingboingboing.net"){$style=4;}
+		if($domain=="new5.boingboingboing.net"){$style=5;}
+		if($domain=="m.boingboingboing.net"){$style=5;}
+
 		$sql = 'SELECT s.style_id, t.template_path, t.template_id, t.bbcode_bitfield, t.template_inherits_id, t.template_inherit_path, c.theme_path, c.theme_name, c.theme_id
 			FROM ' . STYLES_TABLE . ' s, ' . STYLES_TEMPLATE_TABLE . ' t, ' . STYLES_THEME_TABLE . " c
 			WHERE s.style_id = $style

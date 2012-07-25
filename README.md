@@ -26,26 +26,10 @@ so I'll need all the same changes here that we had there:
    don't attach events to topic threads for
    some reason. Crazy! We do.
 
-3) Post voting.
-   Allow users to "Like" a topic, and organize
-   the like-votes to allow "Best of" pages showing
-   highly voted topics between given dates.
-
-## PROGRESS
-
-The IRC-View, "ACE", is mosty complete and available
-from /ace.php with either a "t" or an "f" CGI parameter
-to specify what to listen to. The templates have not
-been adjusted to link to that page as yet.
-
-The events calendar hasn't even been started yet
-(well, it exists in the old phpbb2 board but likely
-I'll rewrite rather than use that code).
-
-The post-voting hasn't even been started yet
-(also exists in the old board, will likely
-not reuse the code and just rewrite better
-though)
+3) Skins.
+   The "Boing" skins are in this fork, as well as
+   the changes needed to the phbb3 skins to make
+   the chat-watch and events-calendar work properly.
 
 ## ABOUT
 

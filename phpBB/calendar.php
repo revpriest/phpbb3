@@ -134,6 +134,7 @@ for($n=0;$n<$startWeekday;$n++){
 $numDays = cal_days_in_month(CAL_GREGORIAN, $month, $year);
 for($n=0;$n<$numDays;$n++){
   $events=getTopicsForThisDay($startTime+$n*24*60*60,$mode);
+  if($events==""){$events="&nbsp;";}
   $template->assign_block_vars('calday', array("DATE"=>$n+1,"EVENTS"=>$events));
 }
 

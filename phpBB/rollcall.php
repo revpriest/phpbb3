@@ -72,7 +72,10 @@ function assignRollcallVars($topic_id){
   }
   $clicky .= "</a>";
 
+  $date = getEventDate($topic_id);
+
   $template->assign_vars(array(
+  	'EVENTDATE'		=> $date,
   	'ROLLCALL'		=> true,
 	'ROLLCALL_USERLIST'		=> $rollcall,
 	'ROLLCALL_CLICKY'		=> $clicky

@@ -1,0 +1,64 @@
+<!-- INCLUDE overall_header.html -->
+<script type="text/javascript" src="jquery.js"></script>
+<div id="pageheader">
+	<h2><a class="titles" href="{U_VIEW_TOPIC}">{TOPIC_TITLE}</a></h2>
+</div>
+<br clear="all" /><br />
+<div id="pagecontent">
+  <div id="ace_posts">
+    <!-- INCLUDE ace_inner.html -->
+  </div>
+</div>
+<div id="aceReply" style="text-align:center">
+  <hr/>
+  Click the radio-button for the post to respond to and then reply:
+  <hr/>
+  {S_FORM_TOKEN}
+  <textarea columns="20" rows="6" id="ace_reply_text"></textarea><br/>
+  <input type="submit" onclick="javascript:ace_submit()" value="Post" />
+</div>
+
+<script type="text/javascript">
+  var ace_highest_post = "{ACE_HIGHEST_POST}";
+  var ace_post_to_topic = -1;
+  var ace_post_to_forum = 1;
+  ace_update_posts = function(){
+    setTimeout("ace_update_posts()",5000);
+    $.post("./ace.php",{min:ace_highest_post,{ACE_PARAMS}},function(content){
+      if(content!=""){
+        var x  = content.indexOf("\n");
+        var highest_post = content.substring(0,x);
+        if(highest_post>ace_highest_post){
+          //Hurray, new things!
+          content = content.substring(x);
+          ace_highest_post=highest_post;
+          $("#ace_posts").append(content);
+        }
+      }
+    });
+  }
+  ace_clicked_forum = function(tid,fid){
+    ace_post_to_topic = tid;
+    ace_post_to_forum = fid;
+  }
+  ace_submit = function(){
+    if(($("#ace_reply_text").val().length)<5){
+      return; //No double-clicks allowed! No posting empty messages!
+    }
+    if(ace_post_to_topic<=0){
+      alert("First pick a post to reply to");
+      return;
+    }
+    var text = $("#ace_reply_text").val();
+    $("#ace_reply_text").val("");
+    var ct = $("input[name=creation_time]").val();
+    var ft = $("input[name=form_token]").val();
+    $.post("./posting.php",{message:text,mode:"reply",f:ace_post_to_forum,t:ace_post_to_topic,attach_sig:"on",subject:"",creation_time:ct,form_token:ft,post:"Submit"},function(c){
+      $("#ace_reply_text").val();
+    });
+  }
+  ace_update_posts();
+</script>
+
+<div id="pagefooter"></div>
+<!-- INCLUDE overall_footer.html -->
