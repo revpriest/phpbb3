@@ -191,6 +191,21 @@
 <tr>
 	<td class="row1" valign="top"><b class="genmed">{L_MESSAGE_BODY}:</b><br /><span class="gensmall">{L_MESSAGE_BODY_EXPLAIN}&nbsp;</span><br /><br />
 	<!-- IF S_SMILIES_ALLOWED -->
+	    <script type="text/javascript">
+		var smilView=false;
+		function toggleSmiles(){
+		  var x = document.getElementById("smiliesOnOff");
+		  if(smilView){
+		    smilView=false;
+	 	    x.style.display = "none";
+		  }else{
+		    smilView=true;
+	 	    x.style.display = "";
+		  }
+		}
+	    </script>
+	    <a href="#" onclick="javascript:toggleSmiles()">View Smilies</a>
+	    <div style="display:none" id="smiliesOnOff">
 		<table width="100%" cellspacing="5" cellpadding="0" border="0" align="center">
 		<tr>
 			<td class="gensmall" align="center"><b>{L_SMILIES}</b></td>
@@ -210,6 +225,7 @@
 		<!-- ENDIF -->
 
 		</table>
+	    </div>
 	<!-- ENDIF -->
 	</td>
 	<td class="row2" valign="top">
