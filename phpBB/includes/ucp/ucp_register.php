@@ -235,6 +235,13 @@ class ucp_register
 				}
 			}
 
+		
+			//Special Boing field validation	
+			$boing_invited = request_var('pf_recommendation',"robot");
+			if(!preg_match("/\w*\W+\w*/",$boing_invited)){
+				$error[] = "You must use a sentence, IE with more than one word, to describe how you were invited.";
+			}
+
 			if (!sizeof($error))
 			{
 				$server_url = generate_board_url();
@@ -386,8 +393,11 @@ class ucp_register
 							$messenger->to($row['user_email'], $row['username']);
 							$messenger->im($row['user_jabber'], $row['username']);
 
+							$boing_invited = request_var('pf_recommendation',"robot");
 							$messenger->assign_vars(array(
 								'USERNAME'			=> htmlspecialchars_decode($data['username']),
+								//Boing/Pre - Attach 'who invited you' field to email template.
+								'REC'		=> htmlspecialchars_decode($boing_invited),
 								'U_USER_DETAILS'	=> "$server_url/memberlist.$phpEx?mode=viewprofile&u=$user_id",
 								'U_ACTIVATE'		=> "$server_url/ucp.$phpEx?mode=activate&u=$user_id&k=$user_actkey")
 							);

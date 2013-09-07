@@ -16,3 +16,6 @@
 @import url("tweaks.css");
 @import url("colours.css");
 @import url("imageset.css");
+.likebody {
+  text-align: right;
+}

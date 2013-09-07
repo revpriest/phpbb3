@@ -82,7 +82,9 @@ class phpbb_request implements phpbb_request_interface
 
 		if ($disable_super_globals)
 		{
-			$this->disable_super_globals();
+			#Pre/Boing - Can't be doing with fixing all my hacks
+			#to work without $_REQUEST so screw this...
+			#$this->disable_super_globals();
 		}
 	}
 

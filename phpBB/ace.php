@@ -451,6 +451,12 @@ $template->assign_vars(array(
 // If the user is trying to reach the second half of the topic, fetch it starting from the end
 $store_reverse = true;
 $sql_limit = $config['posts_per_page'];
+if($_REQUEST['number']){
+  $sql_limit = $_REQUEST['number'];
+}
+if($sql_limit>200){
+  $sql_limit=200;
+}
 $sql_start = $start;
 $sql_sort_order = "p.post_id DESC";
 

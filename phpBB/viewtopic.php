@@ -612,6 +612,7 @@ if (!empty($_EXTRA_URL))
 }
 
 include_once("rollcall.php");
+include_once("like.php");
 assignRollcallVars($topic_id);
 
 // Send vars to template
@@ -1525,6 +1526,7 @@ for ($i = 0, $end = sizeof($post_list); $i < $end; ++$i)
 		'POST_AUTHOR'			=> ($poster_id != ANONYMOUS) ? $user_cache[$poster_id]['author_username'] : get_username_string('username', $poster_id, $row['username'], $row['user_colour'], $row['post_username']),
 		'U_POST_AUTHOR'			=> ($poster_id != ANONYMOUS) ? $user_cache[$poster_id]['author_profile'] : get_username_string('profile', $poster_id, $row['username'], $row['user_colour'], $row['post_username']),
 
+		'LIKES'			=> getLikes($row['post_id']),
 		'RANK_TITLE'		=> $user_cache[$poster_id]['rank_title'],
 		'RANK_IMG'			=> $user_cache[$poster_id]['rank_image'],
 		'RANK_IMG_SRC'		=> $user_cache[$poster_id]['rank_image_src'],
