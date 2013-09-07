@@ -51,11 +51,12 @@ if($action!=""){
 	if(!$row){
 	  print "Creating Table";
 	  print ("create table ".LIKES_TABLE." (post_id mediumint unsigned not null, user_id mediumint unsigned not null)");
-	  $res = $db->sql_query("create table ".LIKES_TABLE." (post_id mediumint unsigned not null, user_id mediumint unsigned not null)");
+	  $res = $db->sql_query("create table ".LIKES_TABLE." (post_id mediumint unsigned not null, created datetime, user_id mediumint unsigned not null)");
 	  $db->sql_freeresult($res);
 	  $res = $db->sql_query("create index i1 on ".LIKES_TABLE."(post_id)");
 	  $db->sql_freeresult($res);
 	  $res = $db->sql_query("create index i2 on ".LIKES_TABLE."(user_id)");
+	  $res = $db->sql_query("create index i3 on ".LIKES_TABLE."(created)");
 	  $db->sql_freeresult($res);
 	}
 
@@ -70,7 +71,7 @@ if($action!=""){
               header('Content-Type: text/html; charset=utf-8');
 	      print "Unliked";
 	    }else{
-	      $res = $db->sql_query("insert into ".LIKES_TABLE." (post_id,user_id) values($post_id,$user_id)");
+	      $res = $db->sql_query("insert into ".LIKES_TABLE." (post_id,user_id,created) values($post_id,$user_id,now())");
 	      $db->sql_freeresult($res);
               header('Content-Type: text/html; charset=utf-8');
 	      print "Liked";
