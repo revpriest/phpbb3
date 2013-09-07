@@ -80,6 +80,10 @@ if($action!=""){
 
 	}
 }else{
+  if (!defined('IN_PHPBB')) {
+	print "I like you too. Send an action if you want more than that.";
+	exit;
+  }
   define('LIKES_TABLE',$table_prefix.'bbblikes');
 }
 
