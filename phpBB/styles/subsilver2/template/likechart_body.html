@@ -1,0 +1,44 @@
+<!-- INCLUDE overall_header.html -->
+<script type="text/javascript" src="jquery.js"></script>
+<div id="pageheader">
+  <h1>Most Liked Posts Between {STARTDATE} and {ENDDATE}</h1>
+</div>
+<br clear="all" /><br />
+<div id="pagecontent" style="text-align:center">
+<p>Show most liked post in last: 
+  <a href="like.php?bbblikea=c&bbblikesda=1">Day</a> | 
+  <a href="like.php?bbblikea=c&bbblikesda=7">Week</a> | 
+  <a href="like.php?bbblikea=c&bbblikesda=14">Fortnight</a> | 
+  <a href="like.php?bbblikea=c&bbblikesda=28">Month</a> | 
+  <a href="like.php?bbblikea=c&bbblikesda=28">Year</a> | 
+  <a href="like.php?bbblikea=c&bbblikesda=ever">Ever</a>
+</p>
+<br/>
+
+  <table class="tablebg" width="50%" cellspacing="1" style="margin:auto;" border="1">
+  <tr>
+    <th>Post</th>
+    <th>Author</th>
+    <th>Likes</th>
+  </tr>
+  <!-- BEGIN likerow -->
+    <tr>
+       <td><a href="viewtopic.php?p={likerow.POST_ID}#p{likerow.POST_ID}">{likerow.TITLE}</a></td>
+       <td><a href="memberlist.php?mode=viewprofile&u={likerow.AUTHOR_ID}">{likerow.AUTHOR}</a></td>
+       <td>{likerow.COUNT}</td>
+    </tr>
+  <!-- END likerow -->
+  </table>
+<br/>
+<p>Show most liked post in last: 
+  <a href="like.php?bbblikea=c&bbblikesda=1">Day</a> | 
+  <a href="like.php?bbblikea=c&bbblikesda=7">Week</a> | 
+  <a href="like.php?bbblikea=c&bbblikesda=14">Fortnight</a> | 
+  <a href="like.php?bbblikea=c&bbblikesda=28">Month</a> | 
+  <a href="like.php?bbblikea=c&bbblikesda=28">Year</a> | 
+  <a href="like.php?bbblikea=c&bbblikesda=ever">Ever</a>
+</p>
+</div>
+<br/>
+<div id="pagefooter"></div>
+<!-- INCLUDE overall_footer.html -->

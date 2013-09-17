@@ -32,6 +32,8 @@ if($action!=""){
 	// Start session management
 	$user->session_begin();
 	$auth->acl($user->data);
+	// Setup look and feel
+	$user->setup('viewtopic', $topic_data['forum_style']);
 
 	// Initial var setup
         $action	= request_var('bbblikea', "");
@@ -76,6 +78,9 @@ if($action!=""){
               header('Content-Type: text/html; charset=utf-8');
 	      print "Liked";
 	    }
+	    break;
+	  case "c":
+	    showCharts();
 	    break;
 
 	}
@@ -124,6 +129,68 @@ function getLikes($post_id){
     }
     $ret.= "</div>";
     return $ret;
+}
+
+
+
+/**
+* Get all the likes since a startdate till
+* an enddate (which defaults to now)
+*/
+function getLikesByDates($start,$end=null){
+  global $db;
+  if($end==null){$end = new \DateTime();}
+  $likes = array();
+  $q = "select p.post_subject as subject,p.poster_id as poster_id,u.username as user,l.post_id,count(l.user_id) as c from ".LIKES_TABLE." l,".POSTS_TABLE." p, ".USERS_TABLE." u where u.user_id = p.poster_id and l.post_id = p.post_id and l.created>='".$start->format("Y-m-d H:i:s")."' and l.created <= '".$end->format("Y-m-d H:i:s")."' group by l.post_id order by count(l.post_id) desc";
+  $result = $db->sql_query($q);
+  while($row = $db->sql_fetchrow($result)){
+    $likes[] = array(
+      'POST_ID' => $row['post_id'],
+      'COUNT' => $row['c'],
+      'TITLE' => $row['subject'],
+      'AUTHOR' => $row['user'],
+      'AUTHOR_ID' => $row['poster_id'],
+    );
+  }
+  $db->sql_freeresult($result);
+  return $likes;
+}
+
+
+
+/**
+* Function to show a chart of recent liked posts
+* It makes a whole phpbb3 page
+*/
+function showCharts(){
+  global $user,$template;
+  page_header("Liked Posts Charts");
+  $template->set_filenames(array('body' => 'likechart_body.html'));
+  $startDate = new \DateTime();
+  $endDate = new \DateTime();
+
+  $startDaysAgo = request_var('bbblikesda', 7);
+  if($startDaysAgo=="ever"){
+   $startDate = new \DateTime("2000-01-01");
+  }else{
+    $startDate->sub(new \DateInterval("P".intval($startDaysAgo)."D"));
+  }
+  $endDaysAgo = request_var('bbblikeeda', 0);
+  $endDate->sub(new \DateInterval("P".intval($endDaysAgo)."D"));
+
+  $likes = getLikesByDates($startDate);
+
+  $template->assign_vars(array(
+    "STARTDATE"=> $user->format_date($startDate->getTimestamp()),
+    "STARTUNIX"=> $startDate->getTimestamp(),
+    "ENDDATE"=> $user->format_date($endDate->getTimestamp()),
+    "ENDUNIX"=> $endDate->getTimestamp(),
+  ));
+  foreach($likes as $l){
+    $template->assign_block_vars('likerow', $l);
+  }
+  page_footer();
+  print "Whatever";exit;
 }
 
 ?>
