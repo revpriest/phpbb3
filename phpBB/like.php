@@ -115,12 +115,16 @@ function getLikes($post_id){
         $hasScripts="yes";
 	$ret.='<script type="text/javascript" src="jquery.js"></script>';
 	$ret.='<script type="text/javascript">';
-	$ret.='  function likePost(o,p,i,i2){';
-	$ret.='    o.value = "Sending...";';
+	$ret.='  function likePost(o,p,i1,i2,i3){';
+	$ret.='    if(i1!=null){';
+	$ret.='	         o.src=i3;';
+	$ret.='    }else{';
+	$ret.='      o.value = "Sending...";';
+	$ret.='    }';
 	$ret.='    $.post("like.php",{bbblikea:"l",bbblikep:p},function(data){';
-	$ret.='      if(i!=null){';
-	$ret.='	       if(data!="Liked"){';
-	$ret.='	         o.src=i;';
+	$ret.='      if(i1!=null){';
+	$ret.='	       if(data=="Liked"){';
+	$ret.='	         o.src=i1;';
 	$ret.='        }else{';
 	$ret.='	         o.src=i2;';
 	$ret.='        }';
@@ -132,7 +136,7 @@ function getLikes($post_id){
 	$ret.='</script>';
     }
     if($user->theme['style_id']=="2"){
-      $ret.= "<img style=\"cursor:pointer\" src=\"/styles/BoingSilver/theme/en/icon_post_like.png\" onclick=\"likePost(this,$post_id,'/styles/BoingSilver/theme/en/icon_post_like.png','/styles/BoingSilver/theme/en/icon_post_liked.png')\" value=\"Like\" />";
+      $ret.= "<img style=\"cursor:pointer\" src=\"/styles/BoingSilver/theme/en/icon_post_like.png\" onclick=\"likePost(this,$post_id,'/styles/BoingSilver/theme/en/icon_post_liked.png','/styles/BoingSilver/theme/en/icon_post_unliked.png','/styles/BoingSilver/theme/en/icon_post_likeSending.png')\" value=\"Like\" />";
     }else{
       $ret.= "<input type=\"button\" onclick=\"likePost(this,$post_id)\" value=\"Like\" />";
     }
