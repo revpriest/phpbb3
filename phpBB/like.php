@@ -132,7 +132,7 @@ function getLikes($post_id){
 	$ret.='</script>';
     }
     if($user->theme['style_id']=="2"){
-      $ret.= "<img style=\"cursor:hand\" src=\"/styles/BoingSilver/theme/en/icon_post_like.png\" onclick=\"likePost(this,$post_id,'/styles/BoingSilver/theme/en/icon_post_like.png','/styles/BoingSilver/theme/en/icon_post_liked.png')\" value=\"Like\" />";
+      $ret.= "<img style=\"cursor:pointer\" src=\"/styles/BoingSilver/theme/en/icon_post_like.png\" onclick=\"likePost(this,$post_id,'/styles/BoingSilver/theme/en/icon_post_like.png','/styles/BoingSilver/theme/en/icon_post_liked.png')\" value=\"Like\" />";
     }else{
       $ret.= "<input type=\"button\" onclick=\"likePost(this,$post_id)\" value=\"Like\" />";
     }
