@@ -99,7 +99,7 @@ if($action!=""){
 * of likers
 */
 function getLikes($post_id){
-    global $db,$hasScripts;
+    global $db,$hasScripts,$user,$style;
     $res = $db->sql_query("select username from ".LIKES_TABLE.",".USERS_TABLE." where ".USERS_TABLE.".user_id = ".LIKES_TABLE.".user_id and ".LIKES_TABLE.".post_id = $post_id");
     $names = "";
     while($row = $db->sql_fetchrow($res)){
@@ -115,15 +115,27 @@ function getLikes($post_id){
         $hasScripts="yes";
 	$ret.='<script type="text/javascript" src="jquery.js"></script>';
 	$ret.='<script type="text/javascript">';
-	$ret.='  function likePost(o,p){';
+	$ret.='  function likePost(o,p,i,i2){';
 	$ret.='    o.value = "Sending...";';
 	$ret.='    $.post("like.php",{bbblikea:"l",bbblikep:p},function(data){';
-	$ret.='      o.value = data;';
+	$ret.='      if(i!=null){';
+	$ret.='	       if(data!="Liked"){';
+	$ret.='	         o.src=i;';
+	$ret.='        }else{';
+	$ret.='	         o.src=i2;';
+	$ret.='        }';
+	$ret.='      }else{';
+	$ret.='        o.value = data;';
+	$ret.='      }';
 	$ret.='    },"html");';
 	$ret.='  }';
 	$ret.='</script>';
     }
-    $ret.= "<input type=\"button\" onclick=\"likePost(this,$post_id)\" value=\"Like\"></button>";
+    if($user->theme['style_id']=="2"){
+      $ret.= "<img style=\"cursor:hand\" src=\"/styles/BoingSilver/theme/en/icon_post_like.png\" onclick=\"likePost(this,$post_id,'/styles/BoingSilver/theme/en/icon_post_like.png','/styles/BoingSilver/theme/en/icon_post_liked.png')\" value=\"Like\" />";
+    }else{
+      $ret.= "<input type=\"button\" onclick=\"likePost(this,$post_id)\" value=\"Like\" />";
+    }
     if($names!=""){
       $ret.= "<br/>Liked By: $names";
     }

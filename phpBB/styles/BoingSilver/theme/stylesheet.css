@@ -1143,4 +1143,5 @@ span.imageset {
 
 .likebody {
   text-align: right;
+  display: inline;
 }
