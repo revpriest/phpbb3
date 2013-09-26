@@ -487,6 +487,7 @@ $sql = 'SELECT p.post_id
 $result = $db->sql_query_limit($sql, $sql_limit, $sql_start);
 
 
+
 $i = 0;
 //Track which is the highest of the posts we've recieved
 //so that we can pass that back to the javascript and it
@@ -518,6 +519,17 @@ if (!sizeof($post_list))
 	}
 	else
 	{
+  	  	print $ace_min_id."\n";
+		require_once("like.php");
+		$newLikesString = getLikeUpdates();
+		$template->assign_vars(array(
+			'LIKEUPDATES'						=> $newLikesString,
+		));
+  	  	$template->set_filenames(array('body' => 'ace_inner.html'));
+		make_jumpbox(append_sid("{$phpbb_root_path}viewforum.$phpEx"), $forum_id);
+
+		page_footer();
+	  	return;
 		trigger_error('NO_TOPIC');
 	}
 }
@@ -1224,12 +1236,17 @@ if (empty($_REQUEST['t']) && !empty($topic_id))
 page_header($user->lang['VIEW_TOPIC'] . ' - ' . $topic_data['topic_title'], true, $forum_id);
 
 if($ace_min_id){
+	//Otherwise, tell it the new highest and dump out the new ones.
 	if($ace_highest_post<=0){
 	  //No reply at all if there's no new posts. Empty!
 	  return;
 	}
-	//Otherwise, tell it the new highest and dump out the new ones.
   	print $ace_highest_post."\n";
+	require_once("like.php");
+	$newLikesString = getLikeUpdates();
+	$template->assign_vars(array(
+		'LIKEUPDATES'						=> $newLikesString,
+	));
   	$template->set_filenames(array('body' => 'ace_inner.html'));
 }else{
   	$template->set_filenames(array('body' => 'ace_body.html'));

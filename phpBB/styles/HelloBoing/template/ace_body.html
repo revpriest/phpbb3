@@ -28,7 +28,7 @@
       if(content!=""){
         var x  = content.indexOf("\n");
         var highest_post = content.substring(0,x);
-        if(highest_post>ace_highest_post){
+        if(highest_post=>ace_highest_post){
           //Hurray, new things!
           content = content.substring(x);
           ace_highest_post=highest_post;

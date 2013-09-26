@@ -1145,3 +1145,11 @@ span.imageset {
   text-align: right;
   display: inline;
 }
+.likesnotify{
+  font-size: 1.5em;
+  padding: 2em;
+  background: #DEE6F1;
+  border: 2px solid #3069B1;
+  margin: 1em;
+  border-radius: 5px;
+}

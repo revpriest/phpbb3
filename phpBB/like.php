@@ -43,7 +43,8 @@ if($action!=""){
 
 	$start		= request_var('start', 0);
 	$view		= request_var('view', '');
-        define('LIKES_TABLE',$table_prefix.'bbblikes');
+	define('LIKES_TABLE',$table_prefix.'bbblikes');
+	define('LIKES_OPTIONS_TABLE',$table_prefix.'bbblikesoptions');
 
 
 	//Check if likes table exists...
@@ -52,13 +53,26 @@ if($action!=""){
 	$db->sql_freeresult($result);
 	if(!$row){
 	  print "Creating Table";
-	  print ("create table ".LIKES_TABLE." (post_id mediumint unsigned not null, user_id mediumint unsigned not null)");
 	  $res = $db->sql_query("create table ".LIKES_TABLE." (post_id mediumint unsigned not null, created datetime, user_id mediumint unsigned not null)");
 	  $db->sql_freeresult($res);
 	  $res = $db->sql_query("create index i1 on ".LIKES_TABLE."(post_id)");
 	  $db->sql_freeresult($res);
 	  $res = $db->sql_query("create index i2 on ".LIKES_TABLE."(user_id)");
 	  $res = $db->sql_query("create index i3 on ".LIKES_TABLE."(created)");
+	  $db->sql_freeresult($res);
+	}
+
+	//Check if likes options table exists...
+	$result = $db->sql_query("show tables like '".LIKES_OPTIONS_TABLE."'");
+	$row = $db->sql_fetchrow($result);
+	$db->sql_freeresult($result);
+	if(!$row){
+	  print "Creating Table";
+	  $res = $db->sql_query("create table ".LIKES_OPTIONS_TABLE." (user_id mediumint unsigned not null, lastnotify datetime, defaultextract smallint unsigned not null)");
+	  $db->sql_freeresult($res);
+	  $res = $db->sql_query("create index io1 on ".LIKES_OPTIONS_TABLE."(user_id)");
+	  $db->sql_freeresult($res);
+	  $res = $db->sql_query("create index io2 on ".LIKES_OPTIONS_TABLE."(lastnotify)");
 	  $db->sql_freeresult($res);
 	}
 
@@ -82,6 +96,9 @@ if($action!=""){
 	  case "c":
 	    showCharts();
 	    break;
+	  case "u":
+	    print getLikeUpdates();
+	    break;
 
 	}
 }else{
@@ -89,7 +106,9 @@ if($action!=""){
 	print "I like you too. Send an action if you want more than that.";
 	exit;
   }
+  global $table_prefix;
   define('LIKES_TABLE',$table_prefix.'bbblikes');
+  define('LIKES_OPTIONS_TABLE',$table_prefix.'bbblikesoptions');
 }
 
 
@@ -172,6 +191,63 @@ function getLikesByDates($start,$end=null){
   return $likes;
 }
 
+
+
+/**
+* Function to show any updates to the like status
+* of posts you've posted. IE, we wanna find out
+* if anyone has liked any of your posts since
+* the last time you looked and update the store
+* of the last time you looked.
+*
+* If there has been no looking yet, we don't
+* wanna give updates on ALL the post EVER of
+* course. So in that case just create the
+* table row with now() in the date.
+*
+*/
+function getLikeUpdates(){
+  global $db,$user;
+  $me = intval($user->data['user_id']);
+  $result = $db->sql_query("select lastnotify from ".LIKES_OPTIONS_TABLE." where user_id = $me");
+  $row = $db->sql_fetchrow($result);
+  $db->sql_freeresult($result);
+  if(!isset($row['lastnotify'])){
+    //Not created an notity time yet. Better do that then stop.
+    $res = $db->sql_query("insert into ".LIKES_OPTIONS_TABLE." (user_id,lastnotify,defaultextract) values($me,now(),0)");
+    $db->sql_freeresult($res);
+    return null;
+  }
+  $last = new \DateTime($row['lastnotify']);
+
+  //Update it so that the last update is NOW
+  $res = $db->sql_query("update ".LIKES_OPTIONS_TABLE." set lastnotify = now() where user_id=$me;");
+  $db->sql_freeresult($res);
+  
+
+  //Find all your likes since last notify
+  $q = "select p.post_subject as subject,l.post_id,u.username,u.user_id from ".LIKES_TABLE." l,".POSTS_TABLE." p, ".USERS_TABLE." u where u.user_id = l.user_id and l.post_id = p.post_id and p.poster_id = $me and l.created>='".$last->format("Y-m-d H:i:s")."' order by l.created";
+  $result = $db->sql_query($q);
+  while($row = $db->sql_fetchrow($result)){
+    $likes[] = array(
+      'POST_ID' => $row['post_id'],
+      'TITLE' => $row['subject'],
+      'USER' => $row['username'],
+      'USER_ID' => $row['user_id'],
+    );
+  }
+  $db->sql_freeresult($result);
+  if(sizeof($likes)<=0){
+    return null;
+  }
+
+  $s="<div class=\"likesnotify\">";
+  foreach($likes as $l){
+    $s.='<a href="memberlist.php?mode=viewprofile&u='.$l['USER_ID'].'">'.ucfirst($l['USER']).'</a> liked your post <a href="viewtopic.php?p='.$l['POST_ID'].'#p'.$l['POST_ID'].'">'.$l['TITLE']."</a><br/>\n";
+  }
+  $s.="</div>";
+  return $s;
+}
 
 
 /**
