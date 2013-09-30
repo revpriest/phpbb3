@@ -4637,8 +4637,11 @@ function page_header($page_title = '', $display_online_list = true, $item_id = 0
 	}
 
 	//Pre - BBB - Boing - We get any new likes and allow the template to show them.
-	require_once("like.php");
-	$newLikesString = getLikeUpdates();
+	$newLikesString = "";
+	if(file_exists("like.php")){
+  		require_once("like.php");
+		$newLikesString = getLikeUpdates();
+	}
 
 	// The following assigns all _common_ variables that may be used at any point in a template.
 	$template->assign_vars(array(

@@ -1233,7 +1233,7 @@ if (empty($_REQUEST['t']) && !empty($topic_id))
 }
 
 // Output the page
-page_header($user->lang['VIEW_TOPIC'] . ' - ' . $topic_data['topic_title'], true, $forum_id);
+page_header("Adams Chat Engine - All Posts");
 
 if($ace_min_id){
 	//Otherwise, tell it the new highest and dump out the new ones.
