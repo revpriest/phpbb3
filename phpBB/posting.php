@@ -157,6 +157,13 @@ $result = $db->sql_query($sql);
 $post_data = $db->sql_fetchrow($result);
 $db->sql_freeresult($result);
 
+//Pre BBB Boing - Fill $post_data['enable_excerpt'] if this is edited post
+if($mode=="edit"){
+  require_once('like.php');
+  $post_data['enable_excerpt'] = bbb_getExcerptStatus($post_id);
+}
+
+
 if (!$post_data)
 {
 	if (!($mode == 'post' || $mode == 'bump' || $mode == 'reply'))
@@ -442,6 +449,8 @@ $post_data['enable_urls'] = $post_data['enable_magic_url'];
 
 if ($mode != 'edit')
 {
+	require_once('like.php');	//BBB Boing Pre
+	$post_data['enable_excerpt']		= bbb_getExcerptDefault();  //BBB Boing Pre
 	$post_data['enable_sig']		= ($config['allow_sig'] && $user->optionget('attachsig')) ? true: false;
 	$post_data['enable_smilies']	= ($config['allow_smilies'] && $user->optionget('smilies')) ? true : false;
 	$post_data['enable_bbcode']		= ($config['allow_bbcode'] && $user->optionget('bbcode')) ? true : false;
@@ -648,6 +657,7 @@ if ($submit || $preview || $refresh)
 		$post_data['icon_id'] = request_var('icon', (int) $post_data['icon_id']);
 	}
 
+	$post_data['enable_excerpt']		= isset($_POST['enable_excerpt']) ? true: false;	//Pre BBB Boing
 	$post_data['enable_bbcode']		= (!$bbcode_status || isset($_POST['disable_bbcode'])) ? false : true;
 	$post_data['enable_smilies']	= (!$smilies_status || isset($_POST['disable_smilies'])) ? false : true;
 	$post_data['enable_urls']		= (isset($_POST['disable_magic_url'])) ? 0 : 1;
@@ -1149,6 +1159,13 @@ if ($submit || $preview || $refresh)
               }
             }
 
+	    //Pre BBB Boing - Save the excerpting-allowed status.
+            if(preg_match("/p\=(\d+)/",$redirect_url,$reg)){
+	      require_once('like.php');
+	      bbb_attachExcerptStatus($reg[1],$post_data['enable_excerpt']); 
+	    }
+	    
+
 			if ($config['enable_post_confirm'] && !$user->data['is_registered'] && (isset($captcha) && $captcha->is_solved() === true) && ($mode == 'post' || $mode == 'reply' || $mode == 'quote'))
 			{
 				$captcha->reset();
@@ -1429,8 +1446,18 @@ add_form_key('posting');
 //Boing - work out if this topic has a date and assign var if so.
 eventDates_assignVars($topic_id,$post_id == $post_data['topic_first_post_id']);
 
+
+//BBB Boing Pre - Allow Facebook Excerpting
+require_once("like.php");
+if(isset($post_data['enable_excerpt'])){
+  $excerptAllowed = $post_data['enable_excerpt'];
+}else{
+  $excerptAllowed = bbb_getExcerptDefault();
+}
+
 // Start assigning vars for main posting page ...
 $template->assign_vars(array(
+	'S_EXCERPT_CHECKED'			=> ($excerptAllowed) ? ' checked="checked"' : '',	//BBB Boing pre
 	'L_POST_A'					=> $page_title,
 	'L_ICON'					=> ($mode == 'reply' || $mode == 'quote' || ($mode == 'edit' && $post_id != $post_data['topic_first_post_id'])) ? $user->lang['POST_ICON'] : $user->lang['TOPIC_ICON'],
 	'L_MESSAGE_BODY_EXPLAIN'	=> (intval($config['max_post_chars'])) ? sprintf($user->lang['MESSAGE_BODY_EXPLAIN'], intval($config['max_post_chars'])) : '',

@@ -45,6 +45,7 @@ if($action!=""){
 	$view		= request_var('view', '');
 	define('LIKES_TABLE',$table_prefix.'bbblikes');
 	define('LIKES_OPTIONS_TABLE',$table_prefix.'bbblikesoptions');
+	define('LIKES_POSTS_TABLE',$table_prefix.'bbblikesposts');
 
 
 	//Check if likes table exists...
@@ -73,6 +74,18 @@ if($action!=""){
 	  $res = $db->sql_query("create index io1 on ".LIKES_OPTIONS_TABLE."(user_id)");
 	  $db->sql_freeresult($res);
 	  $res = $db->sql_query("create index io2 on ".LIKES_OPTIONS_TABLE."(lastnotify)");
+	  $db->sql_freeresult($res);
+	}
+
+	//Check if likes posts table exists...
+	$result = $db->sql_query("show tables like '".LIKES_POSTS_TABLE."'");
+	$row = $db->sql_fetchrow($result);
+	$db->sql_freeresult($result);
+	if(!$row){
+	  print "Creating Table";
+	  $res = $db->sql_query("create table ".LIKES_POSTS_TABLE." (post_id mediumint unsigned not null, extract smallint unsigned not null)");
+	  $db->sql_freeresult($res);
+	  $res = $db->sql_query("create index io1 on ".LIKES_POSTS_TABLE."(post_id)");
 	  $db->sql_freeresult($res);
 	}
 
@@ -109,6 +122,61 @@ if($action!=""){
   global $table_prefix;
   define('LIKES_TABLE',$table_prefix.'bbblikes');
   define('LIKES_OPTIONS_TABLE',$table_prefix.'bbblikesoptions');
+  define('LIKES_POSTS_TABLE',$table_prefix.'bbblikesposts');
+}
+
+
+/**
+* Attach a excerpt-status to a post
+*/
+function bbb_attachExcerptStatus($pid,$enable){
+  global $db,$user;
+  if($enable){$enable=1;}else{$enable=0;}
+  $result = $db->sql_query("select extract from ".LIKES_POSTS_TABLE." where post_id = $pid");
+  $row = $db->sql_fetchrow($result);
+  $db->sql_freeresult($result);
+  if(!isset($row['extract'])){
+    $res = $db->sql_query("insert into ".LIKES_POSTS_TABLE." (post_id,extract) values($pid,$enable)");
+  }else{
+    $res = $db->sql_query("update ".LIKES_POSTS_TABLE." set extract = $enable where post_id=$pid;");
+  }
+  $db->sql_freeresult($res);
+}
+
+/**
+* Get the excerpt-status of a post
+*/
+function bbb_getExcerptStatus($pid){
+  global $db,$user;
+  $result = $db->sql_query("select extract from ".LIKES_POSTS_TABLE." where post_id = $pid");
+  $row = $db->sql_fetchrow($result);
+  $db->sql_freeresult($result);
+  if(!isset($row['extract'])){
+    return 0;
+  }
+  return $row['extract'];
+}
+
+
+/**
+* Get the excerpt-default
+*/
+function bbb_getExcerptDefault(){
+    global $db,$hasScripts,$user,$style;
+    $res = $db->sql_query("select defaultextract from ".LIKES_OPTIONS_TABLE." where user_id = ".$user->data['user_id']);
+    $row = $db->sql_fetchrow($res);
+    $db->sql_freeresult($res);
+    if($row['defaultextract']){return true;}
+    return false;
+}
+/**
+* Set the excerpt-default
+*/
+function bbb_setExcerptDefault($val){
+  global $db,$hasScripts,$user,$style;
+  if($val){$val=1;}else{$val=0;}
+  $res = $db->sql_query("update ".LIKES_OPTIONS_TABLE." set defaultextract = $val where user_id=".$user->data['user_id']);
+  $db->sql_freeresult($res);
 }
 
 

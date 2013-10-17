@@ -307,6 +307,8 @@ class ucp_prefs
 				{
 					if (check_form_key('ucp_prefs_post'))
 					{
+						require_once('like.php');
+						bbb_setExcerptDefault($_REQUEST['excerpt']);
 						$user->optionset('bbcode', $data['bbcode']);
 						$user->optionset('smilies', $data['smilies']);
 						$user->optionset('attachsig', $data['sig']);
@@ -332,11 +334,14 @@ class ucp_prefs
 					trigger_error($message);
 				}
 
+
+				require_once("like.php"); 			//Pre BBB Boing
 				$template->assign_vars(array(
 					'S_BBCODE'	=> $data['bbcode'],
 					'S_SMILIES'	=> $data['smilies'],
 					'S_SIG'		=> $data['sig'],
-					'S_NOTIFY'	=> $data['notify'])
+					'S_NOTIFY'	=> $data['notify'],
+					'S_EXCERPT'	=> bbb_getExcerptDefault())	// Pre BBB Boing 
 				);
 			break;
 		}
