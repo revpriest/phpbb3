@@ -402,6 +402,7 @@ function getLikeUpdates(){
 */
 function showCharts(){
   global $user,$template;
+  $isPOTD=false;
   page_header("Liked Posts Charts");
   $template->set_filenames(array('body' => 'likechart_body.html'));
   $startDate = new \DateTime();
@@ -416,24 +417,36 @@ function showCharts(){
   $endDaysAgo = request_var('bbblikeeda', 0);
   $endDate->sub(new \DateInterval("P".intval($endDaysAgo)."D"));
 
+  $nonPOTD = -1;
+  $realPOTD = -1;
   if(isset($_REQUEST["s"])){
     $startDate = new \DateTime($_REQUEST["s"]."T00:00:0+00:00");
     if(isset($_REQUEST['e'])){
       $endDate = new \DateTime($_REQUEST["e"]."T00:00:0+00:00");
     }else{
+      $isPOTD=true;
       $endDate = clone($startDate);
       $endDate->add(new \DateInterval(P1D));
     }
   }
-
   $likes = getLikesByDates($startDate,$endDate);
-  $realPOTD = getBestPostFrom($likes,false);
-  if(!$realPOTD['EXCERPTABLE']){
-    $nonPOTD = $realPOTD;
-    $realPOTD = getBestPostFrom($likes,true);
+  if($isPOTD){
+      $realPOTD = getBestPostFrom($likes,false);
+      if(!$realPOTD['EXCERPTABLE']){
+        $nonPOTD = $realPOTD;
+        $realPOTD = getBestPostFrom($likes,true);
+      }
   }
 
+
+  $tomorrow = clone($startDate);
+  $tomorrow->add(new \DateInterval("P1D"));
+  $yesterday = clone($startDate);
+  $yesterday->sub(new \DateInterval("P1D"));
   $template->assign_vars(array(
+    "ISPOTD"=> $isPOTD,
+    "TOMORROW"=> $tomorrow->format("Y-m-d"),
+    "YESTERDAY"=> $yesterday->format("Y-m-d"),
     "STARTDAY"=> $startDate->format("D d M Y"),
     "STARTDATE"=> $user->format_date($startDate->getTimestamp()),
     "STARTUNIX"=> $startDate->getTimestamp(),

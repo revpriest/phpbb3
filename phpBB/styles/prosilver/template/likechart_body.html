@@ -1,37 +1,7 @@
 <!-- INCLUDE overall_header.html -->
 <script type="text/javascript" src="jquery.js"></script>
 
-<!-- BEGIN real_potd_post -->
-    <div class="potd">
-	<h2>Boing Post Of The Day, {STARTDAY}</h2>
-	<div class="potddetails">
-	   <img src="{real_potd_post.AVATAR}" width ="75" /><br/>
-	   <a href="memberlist.php?mode=viewprofile&u={real_potd_post.AUTHOR_ID}">{real_potd_post.AUTHOR}</a>
-	</div>
-	<div class="potdcontent">{real_potd_post.EXTRACT}</div>
-	<div class="potdlink"><a href="viewtopic.php?p={real_potd_post.POST_ID}#p{real_potd_post.POST_ID}">Read Full Post...</a></div>
-
-	<br clear="left" />
-    </div>
-    <br/>
-<!-- END real_potd_post -->
-
-<!-- BEGIN non_potd_post -->
-    <div class="potd">
-	<h2>Not Post Of The Day, coz it doens't allow extract...</h1>
-	<div class="potddetails">
-	   <img src="{non_potd_post.AVATAR}" width ="75" /><br/>
-	   <a href="memberlist.php?mode=viewprofile&u={non_potd_post.AUTHOR_ID}">{non_potd_post.AUTHOR}</a>
-	</div>
-	<div class="potdcontent">{non_potd_post.EXTRACT}</div>
-	<div class="potdlink"><a href="viewtopic.php?p={non_potd_post.POST_ID}#p{non_potd_post.POST_ID}">Read Full Post...</a></div>
-	<br clear="left" />
-    </div>
-    <br/>
-<!-- END non_potd_post -->
-            
-
-
+<!-- IF !ISPOTD -->
 <h1>Most Liked Posts Between {STARTDATE} and {ENDDATE}</h1>
 <div id="pagecontent" style="text-align:center">
 <p>Show most liked post in last: 
@@ -42,6 +12,42 @@
   <a href="like.php?bbblikea=c&bbblikesda=28">Year</a> | 
   <a href="like.php?bbblikea=c&bbblikesda=ever">Ever</a>
 </p>
+<!-- ELSE -->
+  <h1>Post Of The Day - {STARTDAY}</h1><br/>
+  <div style="float:left"><a href="like.php?bbblikea=c&s={YESTERDAY}">&larr;Previous Day&larr;</a></div>
+  <div style="float:right"><a href="like.php?bbblikea=c&s={TOMORROW}">&rarr;Next Day&rarr;</a></div>
+  <!-- BEGIN real_potd_post -->
+      <div class="potd">
+  	<h1>Boing Post Of The Day, {STARTDAY}</h1>
+  	<div class="potddetails">
+  	   <img src="{real_potd_post.AVATAR}" width ="75" /><br/>
+  	   <a href="memberlist.php?mode=viewprofile&u={real_potd_post.AUTHOR_ID}">{real_potd_post.AUTHOR}</a>
+  	</div>
+  	<div class="potdcontent">{real_potd_post.EXTRACT}</div>
+  	<div class="potdlink"><a href="viewtopic.php?p={real_potd_post.POST_ID}#p{real_potd_post.POST_ID}">Read Full Post...</a></div>
+
+  	<br clear="left" />
+      </div>
+      <br/>
+  <!-- END real_potd_post -->
+
+  <!-- BEGIN non_potd_post -->
+      <div class="potd">
+  	<h2>Not Post Of The Day, coz it doens't allow excerpt...</h1>
+  	<div class="potddetails">
+  	   <img src="{non_potd_post.AVATAR}" width ="75" /><br/>
+  	   <a href="memberlist.php?mode=viewprofile&u={non_potd_post.AUTHOR_ID}">{non_potd_post.AUTHOR}</a>
+  	</div>
+  	<div class="potdcontent">{non_potd_post.EXTRACT}</div>
+  	<div class="potdlink"><a href="viewtopic.php?p={non_potd_post.POST_ID}#p{non_potd_post.POST_ID}">Read Full Post...</a></div>
+  	<br clear="left" />
+      </div>
+      <br/>
+  <!-- END non_potd_post -->
+  <h2 style="text-align:center">Based On This Chart:</h2>
+<!-- ENDIF -->
+
+
 
 <br/>
 
