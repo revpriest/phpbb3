@@ -181,6 +181,8 @@ function bbb_setExcerptDefault($val){
 
 
 
+
+
 /**
 * Get the 'like' button, and the list
 * of likers
@@ -236,6 +238,8 @@ function getLikes($post_id){
 
 
 
+
+
 /**
 * Get all the likes since a startdate till
 * an enddate (which defaults to now)
@@ -244,11 +248,17 @@ function getLikesByDates($start,$end=null){
   global $db;
   if($end==null){$end = new \DateTime();}
   $likes = array();
-  $q = "select p.post_subject as subject,p.poster_id as poster_id,u.username as user,l.post_id,count(l.user_id) as c from ".LIKES_TABLE." l,".POSTS_TABLE." p, ".USERS_TABLE." u where u.user_id = p.poster_id and l.post_id = p.post_id and l.created>='".$start->format("Y-m-d H:i:s")."' and l.created <= '".$end->format("Y-m-d H:i:s")."' group by l.post_id order by count(l.post_id) desc";
+  $q = "select p.post_subject as subject,u.user_avatar as avatar,p.poster_id as poster_id,u.username as user,l.post_id,count(l.user_id) as c from ".LIKES_TABLE." l,".POSTS_TABLE." p, ".USERS_TABLE." u where u.user_id = p.poster_id and l.post_id = p.post_id and l.created>='".$start->format("Y-m-d H:i:s")."' and l.created <= '".$end->format("Y-m-d H:i:s")."' group by l.post_id order by count(l.post_id) desc, p.post_id asc";
   $result = $db->sql_query($q);
   while($row = $db->sql_fetchrow($result)){
+    $avatar = $row['avatar'];
+    if(!preg_match("/^http/",$avatar)){
+      $avatar = "http://boingboingboing.net/download/file.php?avatar=".$avatar;
+    }
     $likes[] = array(
       'POST_ID' => $row['post_id'],
+      'AVATAR' => $avatar,
+      'EXCERPTABLE' => bbb_getExcerptStatus($row['post_id']),
       'COUNT' => $row['c'],
       'TITLE' => $row['subject'],
       'AUTHOR' => $row['user'],
@@ -259,6 +269,74 @@ function getLikesByDates($start,$end=null){
   return $likes;
 }
 
+/**
+* Get the 'Post Of The Day' from a bunch
+* of liked posts, returned by the above
+* GetLikesByDates function.
+*/
+function getBestPostFrom($likes,$excerptableOnly){
+  if(sizeof($likes)<=0){return -1;}
+  $best = -1;
+  if(!$excerptableOnly){
+    $best = $likes[0];
+  }else{
+    foreach($likes as $l){
+      if($l['EXCERPTABLE']){
+	$best = $l;
+	break;
+      }
+    }
+  }
+  if($best!=-1){
+    $best = addExtractEtc($best);
+  }
+  return $best;
+}
+
+
+/**
+* Get first x sentences
+*/
+function xtruncate($body, $sentencesToDisplay = 2) {
+    $nakedBody = preg_replace('/\s+/',' ',strip_tags($body));
+    $sentences = preg_split('/(\.|\?|\!)(\s)/',$nakedBody);
+    if (count($sentences) <= $sentencesToDisplay)
+        return $nakedBody;
+    $stopAt = 0;
+    foreach ($sentences as $i => $sentence) {
+        $stopAt += strlen($sentence);
+        if ($i >= $sentencesToDisplay - 1)
+            break;
+    }
+    $stopAt += ($sentencesToDisplay * 2);
+    return trim(substr($nakedBody, 0, $stopAt));
+}
+
+
+/**
+* Get an extract from a post's content.
+*/
+function addExtractEtc($post){
+  global $db;
+  $extract = "Can't Extract";
+  $q = "select p.post_text as content from ".POSTS_TABLE." p where p.post_id = ".$post['POST_ID'];
+  $result = $db->sql_query($q);
+  if($row = $db->sql_fetchrow($result)){
+    $extract = $row['content'];
+  }
+
+  //Remove BBCode.
+  $extract = preg_replace("/\[quote.*\[\/quote[^\]]*\]/s","",$extract);
+  $extract = preg_replace("/\[img.*\[\/img[^\]]*\]/s","",$extract);
+  $extract = preg_replace("/\[[^\]]*\]/s","",$extract);
+  $extractx = xtruncate($extract, 2);
+  if($extractx!=$extract){
+     $extract = $extractx."...";
+   }
+
+  $post['EXTRACT'] = $extract;
+  return $post;
+}
 
 
 /**
@@ -338,9 +416,25 @@ function showCharts(){
   $endDaysAgo = request_var('bbblikeeda', 0);
   $endDate->sub(new \DateInterval("P".intval($endDaysAgo)."D"));
 
-  $likes = getLikesByDates($startDate);
+  if(isset($_REQUEST["s"])){
+    $startDate = new \DateTime($_REQUEST["s"]."T00:00:0+00:00");
+    if(isset($_REQUEST['e'])){
+      $endDate = new \DateTime($_REQUEST["e"]."T00:00:0+00:00");
+    }else{
+      $endDate = clone($startDate);
+      $endDate->add(new \DateInterval(P1D));
+    }
+  }
+
+  $likes = getLikesByDates($startDate,$endDate);
+  $realPOTD = getBestPostFrom($likes,false);
+  if(!$realPOTD['EXCERPTABLE']){
+    $nonPOTD = $realPOTD;
+    $realPOTD = getBestPostFrom($likes,true);
+  }
 
   $template->assign_vars(array(
+    "STARTDAY"=> $startDate->format("D d M Y"),
     "STARTDATE"=> $user->format_date($startDate->getTimestamp()),
     "STARTUNIX"=> $startDate->getTimestamp(),
     "ENDDATE"=> $user->format_date($endDate->getTimestamp()),
@@ -349,8 +443,13 @@ function showCharts(){
   foreach($likes as $l){
     $template->assign_block_vars('likerow', $l);
   }
+  if($nonPOTD!==-1){
+    $template->assign_block_vars('non_potd_post', $nonPOTD);
+  }
+  if($realPOTD!==-1){
+    $template->assign_block_vars('real_potd_post', $realPOTD);
+  }
   page_footer();
-  print "Whatever";exit;
 }
 
 ?>

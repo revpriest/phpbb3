@@ -1153,3 +1153,53 @@ span.imageset {
   margin: 1em;
   border-radius: 5px;
 }
+.potd{
+  border: 2px solid #316AB1;
+  width: 400px;
+  margin: auto;
+  display: block;
+  padding: 1em;
+  background: #DEE6F1;
+  border-radius: 10px;
+}
+.potd h1{
+  font-size: 1.2em;
+  text-align: center;
+  margin-bottom: 1em;
+}
+.potd h2{
+  font-size: 1.1em;
+  text-align: center;
+  margin-bottom: 1em;
+}
+.potddetails{
+  float: left;
+  width: 80px;
+  text-align: center;
+}
+
+.potdcontent{
+  background: #A9B8C2;
+  margin-left: 100px;
+  padding: 2px;
+  border-radius: 10px;
+  display: block;
+  min-height:41px;
+}
+.potdcontent:before {
+   content:" ";
+   display:block; /* reduce the damage in FF3.0 */
+   position:relative;
+   top:3px;
+   left:-18px;
+   width:0;
+   border-width: 17px 17px 17px 0px ;
+   border-style:solid;
+   border-color:transparent #A9B8C2;
+   float: left;
+   padding: 0px;
+   margin: 0px;
+}
+.potdlink{
+  text-align: right;
+}

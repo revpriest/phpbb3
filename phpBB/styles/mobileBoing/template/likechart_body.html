@@ -1,9 +1,38 @@
 <!-- INCLUDE overall_header.html -->
 <script type="text/javascript" src="jquery.js"></script>
-<div id="pageheader">
-  <h1>Most Liked Posts Between {STARTDATE} and {ENDDATE}</h1>
-</div>
-<br clear="all" /><br />
+
+<!-- BEGIN real_potd_post -->
+    <div class="potd">
+	<h1>Boing Post Of The Day, {STARTDAY}</h1>
+	<div class="potddetails">
+	   <img src="{real_potd_post.AVATAR}" width ="75" /><br/>
+	   <a href="memberlist.php?mode=viewprofile&u={real_potd_post.AUTHOR_ID}">{real_potd_post.AUTHOR}</a>
+	</div>
+	<div class="potdcontent">{real_potd_post.EXTRACT}</div>
+	<div class="potdlink"><a href="viewtopic.php?p={real_potd_post.POST_ID}#p{real_potd_post.POST_ID}">Read Full Post...</a></div>
+
+	<br clear="left" />
+    </div>
+    <br/>
+<!-- END real_potd_post -->
+
+<!-- BEGIN non_potd_post -->
+    <div class="potd">
+	<h2>Not Post Of The Day, coz it doens't allow extract...</h1>
+	<div class="potddetails">
+	   <img src="{non_potd_post.AVATAR}" width ="75" /><br/>
+	   <a href="memberlist.php?mode=viewprofile&u={non_potd_post.AUTHOR_ID}">{non_potd_post.AUTHOR}</a>
+	</div>
+	<div class="potdcontent">{non_potd_post.EXTRACT}</div>
+	<div class="potdlink"><a href="viewtopic.php?p={non_potd_post.POST_ID}#p{non_potd_post.POST_ID}">Read Full Post...</a></div>
+	<br clear="left" />
+    </div>
+    <br/>
+<!-- END non_potd_post -->
+            
+
+
+<h1>Most Liked Posts Between {STARTDATE} and {ENDDATE}</h1>
 <div id="pagecontent" style="text-align:center">
 <p>Show most liked post in last: 
   <a href="like.php?bbblikea=c&bbblikesda=1">Day</a> | 
@@ -13,6 +42,7 @@
   <a href="like.php?bbblikea=c&bbblikesda=28">Year</a> | 
   <a href="like.php?bbblikea=c&bbblikesda=ever">Ever</a>
 </p>
+
 <br/>
 
   <table class="tablebg" width="50%" cellspacing="1" style="margin:auto;" border="1">
@@ -20,12 +50,20 @@
     <th>Post</th>
     <th>Author</th>
     <th>Likes</th>
+    <th>Excerpts?</th>
   </tr>
   <!-- BEGIN likerow -->
     <tr>
        <td><a href="viewtopic.php?p={likerow.POST_ID}#p{likerow.POST_ID}">{likerow.TITLE}</a></td>
        <td><a href="memberlist.php?mode=viewprofile&u={likerow.AUTHOR_ID}">{likerow.AUTHOR}</a></td>
        <td>{likerow.COUNT}</td>
+       <td>
+        <!-- IF likerow.EXCERPTABLE -->
+	  <span style="color:green">Yes</span>
+        <!-- ELSE -->
+	  <span style="color:red">No</span>
+        <!-- ENDIF -->
+       </td>
     </tr>
   <!-- END likerow -->
   </table>
