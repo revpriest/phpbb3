@@ -77,3 +77,11 @@
 .potdlink{
   text-align: right;
 }
+.potdsubject{
+  background: white;
+  border: 1px solid;
+  margin-left: 90px;
+  margin-bottom: 0.5em;
+  border-radius: 5px;
+  padding: 2px;
+}

@@ -299,7 +299,7 @@ function getBestPostFrom($likes,$excerptableOnly){
 */
 function xtruncate($body, $sentencesToDisplay = 2) {
     $nakedBody = preg_replace('/\s+/',' ',strip_tags($body));
-    $sentences = preg_split('/(\.|\?|\!)(\s)/',$nakedBody);
+    $sentences = preg_split('/(\.|\?|\!|\:)(\s)/',$nakedBody);
     if (count($sentences) <= $sentencesToDisplay)
         return $nakedBody;
     $stopAt = 0;
