@@ -1743,6 +1743,10 @@ if ($s_can_vote || $s_quick_reply)
 			'forum_id'				=> (int) $forum_id,
 		);
 
+		//Pre BBB Boing.
+                require_once('like.php');
+                $qr_hidden_fields['enable_excerpt'] = bbb_getExcerptStatus($post_id);
+
 		// Originally we use checkboxes and check with isset(), so we only provide them if they would be checked
 		(!$s_bbcode)					? $qr_hidden_fields['disable_bbcode'] = 1		: true;
 		(!$s_smilies)					? $qr_hidden_fields['disable_smilies'] = 1		: true;

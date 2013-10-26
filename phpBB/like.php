@@ -438,7 +438,6 @@ function showCharts(){
       }
   }
 
-
   $tomorrow = clone($startDate);
   $tomorrow->add(new \DateInterval("P1D"));
   $yesterday = clone($startDate);
