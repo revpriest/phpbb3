@@ -248,7 +248,7 @@ function getLikesByDates($start,$end=null){
   global $db;
   if($end==null){$end = new \DateTime();}
   $likes = array();
-  $q = "select p.post_subject as subject,u.user_avatar as avatar,p.poster_id as poster_id,u.username as user,l.post_id,count(l.user_id) as c from ".LIKES_TABLE." l,".POSTS_TABLE." p, ".USERS_TABLE." u where u.user_id = p.poster_id and l.post_id = p.post_id and l.created>='".$start->format("Y-m-d H:i:s")."' and l.created <= '".$end->format("Y-m-d H:i:s")."' group by l.post_id order by count(l.post_id) desc, p.post_id asc";
+  $q = "select p.post_subject as subject,u.user_avatar as avatar,p.poster_id as poster_id,u.username as user,l.post_id,count(l.user_id) as c from ".LIKES_TABLE." l,".POSTS_TABLE." p, ".USERS_TABLE." u where u.user_id = p.poster_id and l.post_id = p.post_id and l.created>='".$start->format("Y-m-d H:i:s")."' and l.created <= '".$end->format("Y-m-d H:i:s")."' group by l.post_id order by count(l.post_id) desc, p.post_id desc";
   $result = $db->sql_query($q);
   while($row = $db->sql_fetchrow($result)){
     $avatar = $row['avatar'];
@@ -299,7 +299,7 @@ function getBestPostFrom($likes,$excerptableOnly){
 */
 function xtruncate($body, $sentencesToDisplay = 2) {
     $nakedBody = preg_replace('/\s+/',' ',strip_tags($body));
-    $sentences = preg_split('/(\.|\?|\!|\:)(\s)/',$nakedBody);
+    $sentences = preg_split('/(\.|\?|\!|\:|\-)/',$nakedBody);
     if (count($sentences) <= $sentencesToDisplay)
         return $nakedBody;
     $stopAt = 0;

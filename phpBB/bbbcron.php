@@ -96,7 +96,7 @@
       $nonPOTD = $realPOTD;
       $realPOTD = getBestPostFrom($likes,true);
       $realPOTD['POTD_TITLE'] = "Post Of The Day ".$day->format("D d M y"); 
-      $nonPOTD['POTD_TITLE'] = "NOT Of The Day ".$day->format("D d M y"); 
+      $nonPOTD['POTD_TITLE'] = "NOT Of The Day, coz it wouldn't allow excerptiing..."; 
     }
     return array("real"=>$realPOTD,"non"=>$nonPOTD);
   }
@@ -145,10 +145,10 @@
   * (naughtily, HTML isn't normally allowed) to the tables
   */
   function formatPotds($p){
-    $html = "<p>Post of the day, as voted for by counting likes during that day:</p>";
+    $html = "";
     $html.= formatPotd($p['real']);
     if(isset($p['non'])){
-      $html.="<br/ clear=\"both\"><p>Post of the day would have been the following, but we aren't allowed to excerpt that on Facebook:</p>";
+      $html.="<br/ clear=\"both\"><br/></p>";
       $html.= formatPotd($p['non']);
     }
     return $html;
