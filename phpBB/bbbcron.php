@@ -96,7 +96,7 @@
       $nonPOTD = $realPOTD;
       $realPOTD = getBestPostFrom($likes,true);
       $realPOTD['POTD_TITLE'] = "Post Of The Day ".$day->format("D d M y"); 
-      $nonPOTD['POTD_TITLE'] = "NOT Of The Day, coz it wouldn't allow excerptiing..."; 
+      $nonPOTD['POTD_TITLE'] = "NOT Of The Day, coz it wouldn't allow excerpting..."; 
     }
     return array("real"=>$realPOTD,"non"=>$nonPOTD);
   }
@@ -131,7 +131,7 @@
     $html.= '<h1>'.$x['POTD_TITLE'].'</h1>';
     $html.= '<div class="potddetails">';
     $html.= ' <img src="'.$x['AVATAR'].'" width ="75" /><br/>';
-    $html.= ' <a href="memberlist.php?mode=viewprofile&u='.$x['USER_ID'].'">'.$x['USERNAME'].'</a>';
+    $html.= ' <a href="memberlist.php?mode=viewprofile&u='.$x['AUTHOR_ID'].'">'.$x['AUTHOR'].'</a>';
     $html.= '</div>';
     $html.= '<div class="potdsubject">'.$x['TITLE'].'</div>';
     $html.= '<div class="potdcontent">'.$x['EXTRACT'].'</div>';
